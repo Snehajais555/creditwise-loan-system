@@ -33,5 +33,37 @@ Each row represents a loan applicant with 19 features covering:
 
 Logistic Regression with engineered features performed best overall, with the highest recall — important here since failing to catch a genuinely risky applicant is more costly than an overly cautious rejection.
 
+## Version 2: Pipeline Approach
+
+`Credit_Wise_Pipe.ipynb` rebuilds the project with scikit-learn `Pipeline` and `ColumnTransformer`, and compares 7 models instead of 3.
+
+**What changed from v1**
+- Imputation, scaling and encoding now live inside a pipeline and are learned from the training data only, so no information leaks from the test set.
+- Rows with a missing target (5%) are dropped instead of being filled like features.
+- Models are chosen with 5-fold cross-validation on the training set, and the test set is used once for the final model.
+- Feature engineering kept: squared Credit Score and DTI Ratio, log of Applicant Income.
+
+**Model comparison (5-fold CV, F1)**
+
+| Model | CV F1 |
+|---|---|
+| Gradient Boosting | 0.930 |
+| Decision Tree | 0.917 |
+| AdaBoost | 0.912 |
+| Random Forest | 0.892 |
+| Logistic Regression | 0.773 |
+| Naive Bayes | 0.766 |
+| KNN | 0.737 |
+
+Tree-based models clearly beat linear and distance-based models here, which suggests approval depends on thresholds (for example credit score and DTI cut-offs) more than on a straight-line relationship.
+
+**Final model: Gradient Boosting (test set, 190 rows)**
+
+| | Precision | Recall | F1 |
+|---|---|---|---|
+| Rejected (0) | 0.98 | 0.95 | 0.96 |
+| Approved (1) | 0.89 | 0.97 | 0.93 |
+
+Accuracy: **95%**. Confusion matrix: 122 correct rejections, 59 correct approvals, 7 wrongly approved, 2 wrongly rejected.
 ## Tech Stack
 Python, pandas, NumPy, scikit-learn, seaborn, matplotlib
